@@ -148,6 +148,12 @@ namespace Icebreaker.Services
             var notifyResults = await Task.WhenAll(
                 this.conversationHelper.NotifyUserAsync(this.botAdapter, teamModel.ServiceUrl, teamModel.TeamId, MessageFactory.Attachment(cardForPerson1), teamsPerson1, teamModel.TenantId, cancellationToken),
                 this.conversationHelper.NotifyUserAsync(this.botAdapter, teamModel.ServiceUrl, teamModel.TeamId, MessageFactory.Attachment(cardForPerson2), teamsPerson2, teamModel.TenantId, cancellationToken));
+
+            await this.dataProvider.SetUserMatchInfoAsync(teamsPerson1.TenantId, teamsPerson1.Id, teamsPerson1.AadObjectId, teamsPerson1.UserPrincipalName, teamsPerson1.UserRole);
+            await this.dataProvider.SetUserMatchInfoAsync(teamsPerson2.TenantId, teamsPerson2.Id, teamsPerson2.AadObjectId, teamsPerson2.UserPrincipalName, teamsPerson2.UserRole);
+
+            // var messages = await this.graphHelper.GetUserMessages(teamsPerson1.AadObjectId);
+
             return notifyResults.Count(wasNotified => wasNotified);
         }
 

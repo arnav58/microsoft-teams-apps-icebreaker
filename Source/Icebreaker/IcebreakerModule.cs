@@ -68,6 +68,9 @@ namespace Icebreaker
             builder.RegisterType<MatchingService>().As<IMatchingService>()
                 .SingleInstance();
 
+            builder.RegisterType<UserMeetupInfoService>().As<IUserMeetupInfoService>()
+                .SingleInstance();
+
             builder.RegisterType<IcebreakerBotDataProvider>().As<IBotDataProvider>()
                 .SingleInstance();
         }

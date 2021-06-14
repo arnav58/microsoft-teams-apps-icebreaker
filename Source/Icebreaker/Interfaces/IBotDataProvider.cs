@@ -50,5 +50,22 @@ namespace Icebreaker.Interfaces
         /// <param name="serviceUrl">User service URL</param>
         /// <returns>Tracking task</returns>
         Task SetUserInfoAsync(string tenantId, string userId, bool optedIn, string serviceUrl);
+
+        /// <summary>
+        /// Set the user info for the given user
+        /// </summary>
+        /// <returns>Users Matched by App</returns>
+        Task<IList<UserMatchInfoWithCount>> GetUsersMatchedByApp();
+
+        /// <summary>
+        /// Set the user info for the given user
+        /// </summary>
+        /// <param name="tenantId">Tenant id</param>
+        /// <param name="userId">User id</param>
+        /// <param name="userAadObjectId">User Aad Object Id</param>
+        /// <param name="userPrincipalName">User Principal Name</param>
+        /// <param name="role">Role</param>
+        /// <returns>Tracking task</returns>
+        Task SetUserMatchInfoAsync(string tenantId, string userId, string userAadObjectId, string userPrincipalName, string role);
     }
 }
