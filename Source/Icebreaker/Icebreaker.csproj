@@ -154,6 +154,12 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Graph, Version=3.34.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Graph.3.34.0\lib\net461\Microsoft.Graph.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Graph.Core, Version=1.25.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Graph.Core.1.25.1\lib\net45\Microsoft.Graph.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Identity.Client, Version=4.22.0.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Identity.Client.4.22.0\lib\net461\Microsoft.Identity.Client.dll</HintPath>
     </Reference>
@@ -370,11 +376,16 @@
     <Compile Include="Controllers\TourController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\ProcessNowController.cs" />
+    <Compile Include="Controllers\UserMeetupInfoController.cs" />
     <Compile Include="Helpers\AdaptiveCard.cs" />
     <Compile Include="Helpers\AdaptiveCards\AdaptiveCardBase.cs" />
     <Compile Include="Helpers\CardTemplateHelper.cs" />
+    <Compile Include="Helpers\GraphHelper.cs" />
     <Compile Include="Helpers\MatchingActions.cs" />
     <Compile Include="Helpers\SecretsHelper.cs" />
+    <Compile Include="Helpers\UserMatchInfo.cs" />
+    <Compile Include="Helpers\UserMatchInfoWithCount.cs" />
+    <Compile Include="Interfaces\IUserMeetupInfoService.cs" />
     <Compile Include="Interfaces\IMatchingService.cs" />
     <Compile Include="Interfaces\ISecretsHelper.cs" />
     <Compile Include="Interfaces\IBotDataProvider.cs" />
@@ -397,6 +408,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\UserMeetupInfoService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
@@ -436,6 +448,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

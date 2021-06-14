@@ -32,6 +32,7 @@ namespace Icebreaker.Helpers
         private Database database;
         private DocumentCollection teamsCollection;
         private DocumentCollection usersCollection;
+        private DocumentCollection userMatchesCollection;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IcebreakerBotDataProvider"/> class.
@@ -186,6 +187,37 @@ namespace Icebreaker.Helpers
         }
 
         /// <summary>
+        /// Get the list of users that got matched by the app.
+        /// </summary>
+        /// <returns>List of users that got matched by the app.</returns>
+        public async Task<IList<UserMatchInfoWithCount>> GetUsersMatchedByApp()
+        {
+            await this.EnsureInitializedAsync();
+
+            var usersMatchedByApp = new List<UserMatchInfoWithCount>();
+
+            try
+            {
+                using (var lookupQuery = this.documentClient
+                    .CreateDocumentQuery<UserMatchInfoWithCount>(this.userMatchesCollection.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+                    .AsDocumentQuery())
+                {
+                    while (lookupQuery.HasMoreResults)
+                    {
+                        var response = await lookupQuery.ExecuteNextAsync<UserMatchInfoWithCount>();
+                        usersMatchedByApp.AddRange(response);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.telemetryClient.TrackException(ex.InnerException);
+            }
+
+            return usersMatchedByApp;
+        }
+
+        /// <summary>
         /// Set the user info for the given user
         /// </summary>
         /// <param name="tenantId">Tenant id</param>
@@ -208,6 +240,30 @@ namespace Icebreaker.Helpers
         }
 
         /// <summary>
+        /// Set the user matched info for the given user
+        /// </summary>
+        /// <param name="tenantId">Tenant id</param>
+        /// <param name="userId">User id</param>
+        /// <param name="userAadObjectId">User Aad Object Id</param>
+        /// <param name="userPrincipalName">User Principal Name</param>
+        /// <param name="role">Role</param>
+        /// <returns>Tracking task</returns>
+        public async Task SetUserMatchInfoAsync(string tenantId, string userId, string userAadObjectId, string userPrincipalName, string role)
+        {
+            await this.EnsureInitializedAsync();
+
+            var userMatchInfo = new UserMatchInfo
+            {
+                TenantId = tenantId,
+                UserId = userId,
+                UserAadObjectId = userAadObjectId,
+                UserPrincipalName = userPrincipalName,
+                Role = role,
+            };
+            await this.documentClient.UpsertDocumentAsync(this.userMatchesCollection.SelfLink, userMatchInfo);
+        }
+
+        /// <summary>
         /// Initializes the database connection.
         /// </summary>
         /// <returns>Tracking task</returns>
@@ -219,6 +275,7 @@ namespace Icebreaker.Helpers
             var databaseName = CloudConfigurationManager.GetSetting("CosmosDBDatabaseName");
             var teamsCollectionName = CloudConfigurationManager.GetSetting("CosmosCollectionTeams");
             var usersCollectionName = CloudConfigurationManager.GetSetting("CosmosCollectionUsers");
+            var userMatchesCollectionName = CloudConfigurationManager.GetSetting("CosmosCollectionMatches");
 
             this.documentClient = new DocumentClient(new Uri(endpointUrl), this.secretsHelper.CosmosDBKey);
 
@@ -260,6 +317,14 @@ namespace Icebreaker.Helpers
             };
             usersCollectionDefinition.PartitionKey.Paths.Add("/id");
             this.usersCollection = await this.documentClient.CreateDocumentCollectionIfNotExistsAsync(this.database.SelfLink, usersCollectionDefinition, useSharedOffer ? null : requestOptions);
+
+            // Get a reference to the User Matches collection, creating it if needed
+            var usersMatchesCollectionDefinition = new DocumentCollection
+            {
+                Id = userMatchesCollectionName,
+            };
+            usersMatchesCollectionDefinition.PartitionKey.Paths.Add("/id");
+            this.userMatchesCollection = await this.documentClient.CreateDocumentCollectionIfNotExistsAsync(this.database.SelfLink, usersMatchesCollectionDefinition, useSharedOffer ? null : requestOptions);
 
             this.telemetryClient.TrackTrace("Data store initialized");
         }
